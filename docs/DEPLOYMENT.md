@@ -42,9 +42,11 @@ ever reaches production. Change the temporary password immediately (Profile → 
 3. Environment variables (Project → Settings → Environment Variables): everything from
    `.env.example` with production values (`STORAGE_DRIVER=s3`, `S3_*`, `MAIL_DRIVER=smtp`,
    `SMTP_*`, `APP_URL`, `CRON_SECRET`).
-4. `vercel.json` already sets the build command (`prisma generate && prisma migrate deploy
+4. `vercel.json` already sets the build command (`.npmrc` sets `legacy-peer-deps` for the install) (`prisma generate && prisma migrate deploy
    && next build`) and schedules the cron endpoints. Vercel sends
-   `Authorization: Bearer $CRON_SECRET` automatically when `CRON_SECRET` is defined.
+   `Authorization: Bearer $CRON_SECRET` automatically when `CRON_SECRET` is defined. The schedules are once a day so they work on
+   the free Hobby plan; on Pro you can run `publish-notices` every 15 minutes and
+   `assignment-reminders` hourly.
 5. Deploy. Check `https://<domain>/api/health` returns `{"status":"ok"}`.
 
 Notes: server actions accept up to 12 MB (uploads are limited by `MAX_UPLOAD_MB`, default
