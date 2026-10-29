@@ -1,0 +1,53 @@
+# Local production-like stack: PostgreSQL + MinIO (S3-compatible storage) + the app.
+#   cp .env.example .env   # then set secrets
+#   docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: scholaris
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: scholaris
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scholaris"]
+      interval: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-scholaris}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-change-me-please}
+    volumes: [miniodata:/data]
+    ports: ["9001:9001"]
+
+  createbucket:
+    image: minio/mc:latest
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "sleep 3 && mc alias set local http://minio:9000 $${S3_ACCESS_KEY_ID:-scholaris} $${S3_SECRET_ACCESS_KEY:-change-me-please}
+      && mc mb --ignore-existing local/scholaris"
+
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+      createbucket: { condition: service_completed_successfully }
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgresql://scholaris:${POSTGRES_PASSWORD:-change-me}@db:5432/scholaris
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      STORAGE_DRIVER: s3
+      S3_BUCKET: scholaris
+      S3_REGION: us-east-1
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-scholaris}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-change-me-please}
+      MAIL_DRIVER: ${MAIL_DRIVER:-console}
+      CRON_SECRET: ${CRON_SECRET:-}
+
+volumes:
+  pgdata:
+  miniodata:

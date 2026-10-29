@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Semantic colours as CSS variables so light/dark themes swap in one place.
+   Components only ever use the semantic names (bg-card, text-muted-foreground …). */
+:root {
+  --background: oklch(0.985 0.003 250);
+  --foreground: oklch(0.22 0.03 260);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --muted: oklch(0.965 0.006 250);
+  --muted-foreground: oklch(0.52 0.025 260);
+  --border: oklch(0.915 0.01 255);
+  --input: oklch(0.88 0.012 255);
+  --ring: oklch(0.55 0.2 270);
+  --primary: oklch(0.51 0.21 272);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-soft: oklch(0.95 0.035 272);
+  --accent: oklch(0.955 0.02 272);
+  --accent-foreground: oklch(0.38 0.17 272);
+  --success: oklch(0.6 0.15 155);
+  --success-soft: oklch(0.95 0.045 155);
+  --warning: oklch(0.72 0.16 70);
+  --warning-soft: oklch(0.96 0.05 80);
+  --danger: oklch(0.58 0.21 25);
+  --danger-soft: oklch(0.95 0.035 25);
+  --info: oklch(0.6 0.14 230);
+  --info-soft: oklch(0.95 0.03 230);
+  --sidebar: oklch(0.995 0.002 250);
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #6250d6;
+  --radius: 0.75rem;
+  /* Status colours for charts (validated data-viz status palette; always paired with labels). */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+}
+
+.dark {
+  --background: oklch(0.17 0.02 265);
+  --foreground: oklch(0.95 0.008 255);
+  --card: oklch(0.215 0.022 265);
+  --card-foreground: var(--foreground);
+  --muted: oklch(0.255 0.022 265);
+  --muted-foreground: oklch(0.7 0.02 260);
+  --border: oklch(0.3 0.022 265);
+  --input: oklch(0.36 0.025 265);
+  --ring: oklch(0.68 0.17 272);
+  --primary: oklch(0.65 0.18 272);
+  --primary-foreground: oklch(0.15 0.02 265);
+  --primary-soft: oklch(0.3 0.07 272);
+  --accent: oklch(0.28 0.05 272);
+  --accent-foreground: oklch(0.85 0.09 272);
+  --success: oklch(0.72 0.15 155);
+  --success-soft: oklch(0.3 0.06 155);
+  --warning: oklch(0.8 0.14 75);
+  --warning-soft: oklch(0.32 0.06 75);
+  --danger: oklch(0.7 0.18 25);
+  --danger-soft: oklch(0.32 0.07 25);
+  --info: oklch(0.72 0.12 230);
+  --info-soft: oklch(0.3 0.05 230);
+  --sidebar: oklch(0.195 0.021 265);
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #9085e9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-sidebar: var(--sidebar);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-slide-in: slide-in 0.22s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  ::selection { background: var(--primary-soft); }
+  dialog::backdrop { background: oklch(0.15 0.02 265 / 0.55); backdrop-filter: blur(2px); }
+  input[type="date"], input[type="time"], input[type="datetime-local"] { color-scheme: light; }
+  .dark input[type="date"], .dark input[type="time"], .dark input[type="datetime-local"] { color-scheme: dark; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Print: hide app chrome so reports, report cards and receipts print cleanly. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .print-area { box-shadow: none !important; border: none !important; padding: 0 !important; }
+  main { padding: 0 !important; margin: 0 !important; }
+  @page { margin: 14mm; }
+}
