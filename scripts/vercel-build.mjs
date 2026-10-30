@@ -48,7 +48,9 @@ try {
 console.log("▶ Applying database migrations…");
 run("npx prisma migrate deploy");
 
-if (process.env.SEED_DEMO_DATA === "true") {
+// Accept "true", "TRUE", " yes ", "1" etc. — values pasted into dashboards are often slightly off.
+const seedFlag = (process.env.SEED_DEMO_DATA ?? "").trim().replace(/^["']|["']$/g, "").toLowerCase();
+if (["true", "yes", "1", "on"].includes(seedFlag)) {
   const { rows } = await client.query("SELECT COUNT(*)::int AS n FROM users");
   if (rows[0].n === 0) {
     console.log("▶ Empty database and SEED_DEMO_DATA=true — loading the fictional demo school (takes a few minutes)…");
@@ -56,6 +58,13 @@ if (process.env.SEED_DEMO_DATA === "true") {
   } else {
     console.log(`▶ SEED_DEMO_DATA=true but the database already has ${rows[0].n} users — skipping demo data (it never overwrites existing data).`);
   }
+} else {
+  const { rows } = await client.query("SELECT COUNT(*)::int AS n FROM users");
+  console.log(
+    rows[0].n === 0
+      ? "▶ The database has no users yet. To load the demo school, add SEED_DEMO_DATA=true (Production environment) in Vercel and redeploy."
+      : `▶ Demo data not requested (SEED_DEMO_DATA is ${process.env.SEED_DEMO_DATA === undefined ? "not set" : `"${process.env.SEED_DEMO_DATA}"`}); database has ${rows[0].n} users.`,
+  );
 }
 await client.end();
 
