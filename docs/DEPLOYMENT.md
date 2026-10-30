@@ -47,7 +47,11 @@ ever reaches production. Change the temporary password immediately (Profile → 
    `Authorization: Bearer $CRON_SECRET` automatically when `CRON_SECRET` is defined. The schedules are once a day so they work on
    the free Hobby plan; on Pro you can run `publish-notices` every 15 minutes and
    `assignment-reminders` hourly.
-5. Deploy. Check `https://<domain>/api/health` returns `{"status":"ok"}`.
+5. Deploy. The build (`scripts/vercel-build.mjs`) checks `DATABASE_URL` for common
+   mistakes and explains how to fix them, applies migrations, then builds.
+   For a demo, also set `SEED_DEMO_DATA=true`: the fictional demo school is loaded **only
+   if the database has no users** (it never overwrites data). Remove it afterwards.
+6. Check `https://<domain>/api/health` returns `{"status":"ok"}`.
 
 Notes: server actions accept up to 12 MB (uploads are limited by `MAX_UPLOAD_MB`, default
 10). On Vercel the function body limit is ~4.5 MB on the Hobby plan — lower `MAX_UPLOAD_MB`
